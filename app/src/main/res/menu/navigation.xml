@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_attendance_in"
+        android:icon="@drawable/ic_wb_sunny_black_24dp"
+        android:title="In" />
+
+    <item
+        android:id="@+id/navigation_attendance_out"
+        android:icon="@drawable/ic_brightness_3_black_24dp"
+        android:title="Out" />
+
+    <item
+        android:id="@+id/navigation_reports"
+        android:icon="@drawable/ic_dashboard_black_24dp"
+        android:title="Reports" />
+
+</menu>
