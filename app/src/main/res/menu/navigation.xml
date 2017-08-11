@@ -2,14 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/navigation_attendance_in"
-        android:icon="@drawable/ic_wb_sunny_black_24dp"
-        android:title="In" />
+        android:id="@+id/navigation_attendance"
+        android:icon="@drawable/ic_people_black_24dp"
+        android:title="Attendance" />
 
-    <item
-        android:id="@+id/navigation_attendance_out"
-        android:icon="@drawable/ic_brightness_3_black_24dp"
-        android:title="Out" />
+    <!--<item-->
+    <!--android:id="@+id/navigation_attendance_out"-->
+    <!--android:icon="@drawable/ic_brightness_3_black_24dp"-->
+    <!--android:title="Out" />-->
 
     <item
         android:id="@+id/navigation_reports"

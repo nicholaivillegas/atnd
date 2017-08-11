@@ -5,6 +5,7 @@ package com.villegapps.attendance.model;
  */
 
 public class UserInfo {
+    public String id;
     public String firstName;
     public String lastName;
     public String email;
@@ -22,7 +23,8 @@ public class UserInfo {
 
     }
 
-    public UserInfo(String firstName, String lastName, String email, String phone, String latitude, String longitude, String dateJoined, String lastOnline, String timeIn, String timeOut, String photoUri, String others2) {
+    public UserInfo(String id, String firstName, String lastName, String email, String phone, String latitude, String longitude, String dateJoined, String lastOnline, String timeIn, String timeOut, String photoUri, String others2) {
+        this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -35,6 +37,14 @@ public class UserInfo {
         this.timeOut = timeOut;
         this.photoUri = photoUri;
         this.others2 = others2;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getFirstName() {

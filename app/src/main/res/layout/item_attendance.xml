@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/card_attendace"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        app:cardElevation="5dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp">
+
+            <ImageView
+                android:id="@+id/image_profile"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_margin="10dp"
+                android:src="@color/colorPrimary" />
+
+            <TextView
+                android:id="@+id/text_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/image_profile"
+                android:layout_marginBottom="3dp"
+                android:layout_toEndOf="@+id/image_profile"
+                android:text="John Nicholai Villegas"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/text_in"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/text_name"
+                android:layout_marginRight="10dp"
+                android:layout_toEndOf="@+id/image_profile"
+                android:drawableLeft="@drawable/ic_wb_sunny_black_18dp"
+                android:drawablePadding="5dp"
+                android:text="IN" />
+
+            <TextView
+                android:id="@+id/text_out"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/text_name"
+                android:layout_toEndOf="@+id/text_in"
+                android:drawableLeft="@drawable/ic_brightness_3_black_18dp"
+                android:drawablePadding="5dp"
+                android:text="OUT" />
+
+            <ImageView
+                android:id="@+id/image_status"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="@color/colorAccent" />
+
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+
+</LinearLayout>
