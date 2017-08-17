@@ -9,8 +9,10 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -30,7 +32,11 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -38,6 +44,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.villegapps.attendance.R;
 import com.villegapps.attendance.RecyclerViewAdapter;
+import com.villegapps.attendance.model.Reports;
 import com.villegapps.attendance.model.UserInfo;
 
 import java.text.DateFormat;
@@ -70,11 +77,12 @@ public class AttendanceFragment extends Fragment implements GoogleApiClient.Conn
     Button buttonIn;
     @BindView(R.id.button_out)
     Button buttonOut;
+    private DatabaseReference myRef;
     private ChildEventListener ref;
+    private DatabaseReference mDatabase;
 
     private LinearLayoutManager linearLayoutManager;
     private RecyclerViewAdapter recyclerViewAdapter;
-    private DatabaseReference databaseReference;
     private List<UserInfo> userInfos;
     UserInfo userInfo;
     private GoogleApiClient mGoogleApiClient;
@@ -92,24 +100,40 @@ public class AttendanceFragment extends Fragment implements GoogleApiClient.Conn
         View view = inflater.inflate(R.layout.fragment_attendance, container, false);
         unbinder = ButterKnife.bind(this, view);
         userInfos = new ArrayList<UserInfo>();
-        databaseReference = FirebaseDatabase.getInstance().getReference();
         linearLayoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(linearLayoutManager);
-        databaseReference.addChildEventListener(new ChildEventListener() {
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        myRef = database.getReference("users");
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        ref = myRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                getAllUser(dataSnapshot);
+                if (dataSnapshot != null && dataSnapshot.getValue() != null) {
+                    try {
+                        userInfo = dataSnapshot.getValue(UserInfo.class);
+                        userInfos.add(userInfo);
+                        recyclerViewAdapter = new RecyclerViewAdapter(getContext(), userInfos);
+                        recyclerView.setAdapter(recyclerViewAdapter);
+
+                    } catch (Exception ex) {
+                        Log.e("RAWR", ex.getMessage());
+                    }
+                }
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-//                getAllUser(dataSnapshot);
-                for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
-                    userInfo = singleSnapshot.getValue(UserInfo.class);
-                    userInfos.clear();
-                    userInfos.add(userInfo);
-                    recyclerViewAdapter = new RecyclerViewAdapter(getContext(), userInfos);
-                    recyclerView.setAdapter(recyclerViewAdapter);
+                if (dataSnapshot != null && dataSnapshot.getValue() != null) {
+                    try {
+                        userInfo = dataSnapshot.getValue(UserInfo.class);
+                        userInfos.clear();
+                        userInfos.add(userInfo);
+                        recyclerViewAdapter = new RecyclerViewAdapter(getContext(), userInfos);
+                        recyclerView.setAdapter(recyclerViewAdapter);
+
+                    } catch (Exception ex) {
+                        Log.e("RAWR", ex.getMessage());
+                    }
                 }
             }
 
@@ -127,15 +151,6 @@ public class AttendanceFragment extends Fragment implements GoogleApiClient.Conn
             }
         });
         return view;
-    }
-
-    private void getAllUser(DataSnapshot dataSnapshot) {
-        for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
-            userInfo = singleSnapshot.getValue(UserInfo.class);
-            userInfos.add(userInfo);
-            recyclerViewAdapter = new RecyclerViewAdapter(this.getContext(), userInfos);
-            recyclerView.setAdapter(recyclerViewAdapter);
-        }
     }
 
     @Override
@@ -178,6 +193,7 @@ public class AttendanceFragment extends Fragment implements GoogleApiClient.Conn
 
                 if (!userInfo.getLastOnline().equals(dateNow)) {
                     timeIn();
+                    recordInReport();
                 } else {
                     DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                         @Override
@@ -206,17 +222,32 @@ public class AttendanceFragment extends Fragment implements GoogleApiClient.Conn
     }
 
     public void timeIn() {
-        databaseReference.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("latitude").setValue(String.valueOf(currentLatitude));
-        databaseReference.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("longitude").setValue(String.valueOf(currentLongitude));
-        databaseReference.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("lastOnline").setValue(String.valueOf(dateNow));
-        databaseReference.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("timeIn").setValue(String.valueOf(timeNow));
+        myRef.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("latitude").setValue(String.valueOf(currentLatitude));
+        myRef.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("longitude").setValue(String.valueOf(currentLongitude));
+        myRef.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("lastOnline").setValue(String.valueOf(dateNow));
+        myRef.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("timeIn").setValue(String.valueOf(timeNow));
     }
 
     public void timeOut() {
-        databaseReference.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("latitude").setValue(String.valueOf(currentLatitude));
-        databaseReference.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("longitude").setValue(String.valueOf(currentLongitude));
-        databaseReference.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("lastOnline").setValue(String.valueOf(dateNow));
-        databaseReference.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("timeOut").setValue(String.valueOf(timeNow));
+        myRef.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("latitude").setValue(String.valueOf(currentLatitude));
+        myRef.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("longitude").setValue(String.valueOf(currentLongitude));
+        myRef.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("lastOnline").setValue(String.valueOf(dateNow));
+        myRef.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("timeOut").setValue(String.valueOf(timeNow));
+    }
+
+    public void recordInReport() {
+        Long tsLong = System.currentTimeMillis() / 1000;
+        String timestamp = tsLong.toString();
+        Reports reports = new Reports(FirebaseAuth.getInstance().getCurrentUser().getUid(),
+                timestamp,
+                userInfo.getPhone(),
+                FirebaseAuth.getInstance().getCurrentUser().getEmail(),
+                String.valueOf(currentLatitude),
+                String.valueOf(currentLongitude),
+                userInfo.getTimeIn(),
+                userInfo.getTimeOut(),
+                "");
+        mDatabase.child("reports").child(timestamp).setValue(reports);
     }
 
     @Override
